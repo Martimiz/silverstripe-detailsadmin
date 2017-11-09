@@ -1,0 +1,8 @@
+---
+Name: martimiz-silverstripe-detailsadmin
+---
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_css:
+    - "Martimiz/silverstripe-detailsadmin: admin/client/dist/styles/bundle.css"
+  extra_requirements_javascript:
+    - "Martimiz/silverstripe-detailsadmin: admin/client/dist/bundle.js"

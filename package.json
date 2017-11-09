@@ -1,0 +1,77 @@
+{
+  "name": "silverstripe-detailsadmin",
+  "version": "1.0.0",
+  "description": "A Silverstripe module to edit a Single record in a 'settings' kind of way.",
+  "homepage": "https://github.com/Martimiz/silverstripe-detailsadmin",
+  "keywords": [
+    "SilverStripe",
+    "CMS",
+    "Admin",
+    "Backend",
+    "React",
+    "DetailsForm"
+  ],
+  "license": "BSD-3-Clause",
+  "author": "Balbus Design",
+  "contributors": [
+    {
+      "name": "Martine Bloem aka Martimiz",
+      "email": "martine@balbus.nl",
+      "url": "-"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Martimiz/silverstripe-detailsadmin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Martimiz/silverstripe-detailsadmin/issues"
+  },
+  "scripts": {
+    "production": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development webpack --watch",
+    "once": "NODE_ENV=development webpack"
+  },
+  "dependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-redux": "^5.0.6",
+    "react-router": "^4.2.0",
+    "redux": "^3.7.2",
+    "redux-form": "^7.1.2"
+  },
+  "devDependencies": {
+    "@silverstripe/webpack-config": "^0.4.1",
+    "autoprefixer": "^7.1.6",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "clean-webpack-plugin": "^0.1.17",
+    "copy-webpack-plugin": "^4.2.0",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
+    "node-sass": "^4.6.0",
+    "postcss-loader": "^2.0.8",
+    "prop-types": "^15.6.0",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.8.1"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "modules": false
+        }
+      ]
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

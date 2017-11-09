@@ -1,0 +1,37 @@
+{
+  "name": "Martimiz/silverstripe-detailsadmin",
+  "type": "silverstripe-vendormodule",
+  "description": "A Silverstripe module set up Admin sections to edit a Single DataObject record in a 'settings' kind of way, built with React.",
+  "homepage": "https://github.com/Martimiz/silverstripe-detailsadmin",
+  "keywords": ["SilverStripe","CMS","Admin","Backend","React","Settings","Details","DetailsForm"],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Martine Bloem aka Martimiz",
+      "role": "Developer",
+      "email": "martine@balbus.nl",
+      "homepage": "-"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "silverstripe/framework": "^4@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "Martimiz\\DetailsAdmin\\": "src/"
+    }
+  },
+  "extra": {
+    "installer-name": "detailsadmin",
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    },
+    "expose": [
+      "admin/client/dist",
+      "client/dist"
+    ]
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
