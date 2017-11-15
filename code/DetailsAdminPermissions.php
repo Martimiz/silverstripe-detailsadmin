@@ -1,13 +1,19 @@
 <?php
+
 /**
  * DetailsAdminPermissions.php
  *
+ * As DetailsAdmin  - just like ModelAdmin - is a static classit can't
+ * implement PermissionProvider itself, as it can't be instanciated.
+ * For ModelAdmin, LeftAndMain::providePermissions() handles that task, but we can't
+ * use that, hence this little helper class.
  *
- *
- * @author     Martine Bloem <martimiz@gmail.com>
- * @copyright  2017-2018 Balbus Design
+ * @package Martimiz\DetailsAdmin
+ * @author Martine Bloem <martimiz@gmail.com>
+ * @copyright 2017-2018 Balbus Design
  *
  */
+
 namespace Martimiz\DetailsAdmin;
 
 use SilverStripe\Security\PermissionProvider;
@@ -16,6 +22,7 @@ use SilverStripe\Admin\LeftAndMain;
 
 class DetailsAdminPermissions implements PermissionProvider
 {
+
     public function providePermissions()
     {
         $perms = array();
@@ -55,6 +62,5 @@ class DetailsAdminPermissions implements PermissionProvider
 
         return $perms;
     }
+
 }
-
-

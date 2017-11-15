@@ -1,5 +1,15 @@
 <?php
+
 /**
+ * DetailsAdmin.php
+ *
+ * CMS Manager for single records, used in settings, equivalent to ModelAdmin.
+ * Uses React to generate its forms. See README.md for further information.
+ *
+ * @package Martimiz\DetailsAdmin
+ * @author Martine Bloem <martimiz@gmail.com>
+ * @copyright 2017-2018 Balbus Design
+ *
  * icon reference:
  * file:///SILVERSTRIPE/sites/netbeans4/www/vendor/silverstripe/admin/client/src/font/icons-reference.html
  */
@@ -22,6 +32,7 @@ use SilverStripe\Security\PermissionProvider;
 
 abstract class DetailsAdmin extends LeftAndMain
 {
+
     private static $url_segment = 'detailsadmin';
     private static $menu_title = 'Details';
     private static $menu_icon_class = 'font-icon-cog';
@@ -43,7 +54,7 @@ abstract class DetailsAdmin extends LeftAndMain
         parent::init();
         $this->treeClass = Config::inst()->get(get_class($this), 'tree_class');
 
-        Requirements::customScript('window.ss.detailsadmin = "' . get_class($this) . '"' );
+        Requirements::customScript('window.ss.detailsadmin = "' . get_class($this) . '"');
     }
 
     public function getClientConfig()
@@ -79,7 +90,7 @@ abstract class DetailsAdmin extends LeftAndMain
         return $this->getDetailsEditForm($id);
     }
 
-    public function getDetailsEditForm($id=1)
+    public function getDetailsEditForm($id = 1)
     {
         // Get record-specific fields
         $record = $this->treeClass::get()->first();
@@ -107,13 +118,13 @@ abstract class DetailsAdmin extends LeftAndMain
             'detailsEditForm',
             $fields,
             FieldList::create(
-                FormAction::create('save', _t(__CLASS__.'SAVE', 'Save'))
+                FormAction::create('save', _t(__CLASS__ . 'SAVE', 'Save'))
                     ->setIcon('save')
                     ->setSchemaState([
                         'data' => [
-                            'pristineTitle' => _t(__CLASS__.'SAVED', 'Saved'),
+                            'pristineTitle' => _t(__CLASS__ . 'SAVED', 'Saved'),
                             'pristineIcon' => 'tick',
-                            'dirtyTitle' => _t(__CLASS__.'SAVE', 'Save'),
+                            'dirtyTitle' => _t(__CLASS__ . 'SAVE', 'Save'),
                             'dirtyIcon' => 'save',
                             'pristineClass' => 'btn-outline-primary',
                             'dirtyClass' => '',
@@ -128,16 +139,14 @@ abstract class DetailsAdmin extends LeftAndMain
 
         // Set form action handler with ID included
         $form->setRequestHandler(
-            LeftAndMainFormRequestHandler::create($form, [ $id ])
+            LeftAndMainFormRequestHandler::create($form, [$id])
         );
 
         // Configure form to respond to validation errors with form schema
         // if requested via react.
         $form->setValidationResponseCallback(function (ValidationResult $errors) use ($form, $id, $record) {
             $schemaId = Controller::join_links(
-                $this->Link('schema'),
-                'detailsEditForm',
-                $id
+                $this->Link('schema'), 'detailsEditForm', $id
             );
             return $this->getSchemaResponse($schemaId, $form, $errors);
         });
@@ -146,7 +155,6 @@ abstract class DetailsAdmin extends LeftAndMain
 
         return $form;
     }
-
 
     /**
      * Save  handler
@@ -167,7 +175,7 @@ abstract class DetailsAdmin extends LeftAndMain
                 return Security::permissionFailure($this);
             }
             if (!$record || !$record->ID) {
-                $this->httpError(404, "Bad record ID #" . (int)$id);
+                $this->httpError(404, "Bad record ID #" . (int) $id);
             }
         } else {
             if (!$this->treeClass::singleton()->canCreate()) {
@@ -180,7 +188,7 @@ abstract class DetailsAdmin extends LeftAndMain
         $form->saveInto($record, true);
         $record->write();
         $this->extend('onAfterSave', $record);
-        $message = _t(__CLASS__.'.SAVEDUP', 'Saved.');
+        $message = _t(__CLASS__ . '.SAVEDUP', 'Saved.');
         $form->setMessage($message, ValidationResult::TYPE_GOOD);
 
 
