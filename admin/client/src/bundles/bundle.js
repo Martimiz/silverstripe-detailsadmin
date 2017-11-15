@@ -5,10 +5,10 @@ import ConfigHelpers from 'lib/Config';
 import DetailsAdmin from '../containers/DetailsAdmin';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const sectionConfig = ConfigHelpers.getAll();
+    const sectionConfig = ConfigHelpers.get('sections');
 
-    for (let i = 0; i < sectionConfig.sections.length; i++) {
-        const section = sectionConfig.sections[i];
+    for (let i = 0; i < sectionConfig.length; i++) {
+        const section = sectionConfig[i];
 
         if ('detailsAdmin' in section) {
             reactRouteRegister.add({
