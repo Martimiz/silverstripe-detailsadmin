@@ -40,16 +40,28 @@ SilverStripe has developed a npm module @SilverStripe/webpack-config. It takes a
 		"once": "NODE_ENV=development webpack"
 	},
 	
-***Note:** these are just examples that work for me on OSX, please feel free to disagree and do things differently :)*
+**Note: that these are just examples that work for me on OSX, please feel free to disagree and do things differently :)**
 
 When `development` is set, @silverstripe will generate map files for use with React dev tools
 
 When `production` is set, @SilverStripe/webpack-config sets up and enforces ESlint to check and format the  code. 
 
+### ESlint config
+For ESlint to actually work, you need a `.eslintrc` config file. It could just return the existing config in @silverstripe/webpack-config, but if it morns about the *window* variable not being global, setting 'browser' to true in silverstripeConfig.env helps:
+
+	var silverstripeConfig = require('@silverstripe/webpack-config/.eslintrc');
+
+	silverstripeConfig.env = {
+	    'jasmine': true,
+	    'browser': true, 
+	};
+
+	module.exports = silverstripeConfig
+
 
 ### webpack.config: backend or frontend
 
-When @SilverStripe/webpack-config is used, the resulting webpack.config.js can be fairly simple. The current config is aimed at backend development, but it is easy to change it to frontend by changin `PATHS.ADMIN` to `PATH.MODULE`. 
+When @SilverStripe/webpack-config is used, the resulting webpack.config.js for this module can be fairly simple. The current config is aimed at backend development, but it is easy to change it to frontend by changin `PATHS.ADMIN` to `PATH.MODULE`. 
 
 
 ## 2. How this module works
