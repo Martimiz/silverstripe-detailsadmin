@@ -28,7 +28,7 @@ SilverStripe by default generates separate css files for its modules, instead of
 The list of Node dependencies in package.json may seem arbitrary - it's up to the developer to define what they actually need to include.
 
 
-### @SilverStripewebpack-config
+### @SilverStripe/webpack-config
 
 SilverStripe has developed a npm module @SilverStripe/webpack-config. It takes away the hassle of connecting to SilverStripe modules, and does some other configuration, leaving you with a relatively simple webpack configuration for the module. You don't have to use it, but it is sort of comfortable. 
 
