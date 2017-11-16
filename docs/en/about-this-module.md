@@ -155,10 +155,20 @@ In `DetailsAdmin::getClientConfig()` we define an array of data we will need for
 * **ConfigHelpers.getCurrentSection()**: `Bummer, this doesn't do anything yet, and we actually need it!`
 
 
-###Registering all DetailsAdmin extensions.
+###Registering the current DetailsAdmin.
 *admin/client/src/bundles/bundle.js*
 
-Normally each Admin Section would have its own React 'root' file `bundle.js`, that will register the module and set it up with its own reducer for the redux store. In this case all DetailsAdmin extensions will share the same React bundle, so we must loop them to register all extensions, using `ConfigHelpers.get('sections')`.
+To register the current DetailsAdmin (there can be more then one for separate DataObjects), we need to know the current section name. And that isn't possible out of the box. DetailsAdmin::getClientConfig() will just add the information about each section to *window.SilverStripe.config.sections.[sectionname]>*. But we can't add anything else that way.
+
+So it was (temporarily) added 'manually' to the `windows.ss.config` root as `currentDetailsAdmin` using init(): 
+
+    protected function init()
+    {
+        ...
+        Requirements::customScript('window.ss.config.currentDetailsAdmin = "' . get_class($this) . '"');
+    }
+
+Now we can register the current DetailsAdmin section like this (where DetailsAdmin.js is our actual Component):
 
     import { withRouter } from 'react-router';
     import reactRouteRegister from 'lib/ReactRouteRegister';
@@ -167,23 +177,23 @@ Normally each Admin Section would have its own React 'root' file `bundle.js`, th
     import DetailsAdmin from '../containers/DetailsAdmin';
 
     document.addEventListener('DOMContentLoaded', () => {
-        const sectionConfig = ConfigHelpers.get('sections');
+      const sectionName = ConfigHelpers.get('currentDetailsAdmin');
+      const sectionConfig = ConfigHelpers.get('sections').find((section) => (
+          section.name === sectionName
+      ));
 
-        for (let i = 0; i < sectionConfig.length; i++) {
-            const section = sectionConfig[i];
+      reactRouteRegister.add({
+        path: sectionConfig.url,
+        component: withRouter(DetailsAdmin),
+      });
 
-            if ('detailsAdmin' in section) {
-                reactRouteRegister.add({
-                    path: section.url,
-                    component: withRouter(DetailsAdmin),
-                });
-            }
-        }
     });
+    
 
 *At this point we need not change state at any point, so we can skip the reducer for now, and I'm not yet sure how to 'share' a single reducer between multiple sections, so that's for later.*
 
-### The React DetailsAdmin Module
+
+### The React DetailsAdmin Component
 *admin/client/src/containers/DetailsAdmin.js*
 
 The code above imports the React `DetailsAdmin module`, that is responsible for displaying and handling the form. Tis isn't all that difficult - the challenge is to display the right form for any current section - as we do not know what specific DetailsAdmin section we're in (ConfigHelpers.getCurrentSection() not working). Anyway, first: the setup.
@@ -198,6 +208,7 @@ The code above imports the React `DetailsAdmin module`, that is responsible for 
 	import FormBuilderLoader from 'containers/FormBuilderLoader/FormBuilderLoader';
 
 `Toolbar` and `FormBuilderLoader` are SilcverStripe React components, that are accessible because of the externalsin @silverstripe/webpack-config. Check `node-modules/@silverstripe/webpack-config/js/externals.js` for available components and how to access them.
+
 
 ####Mapping state to props
 The config settings from window.SilverStripe are automatically placed in state. `mapDispatchToProps` isn't used yet but for some reason still needs to be there. `mapStateToProps` just sets (parts of) the state to be a prop in the DetailsAdmin component.
@@ -217,14 +228,6 @@ The config settings from window.SilverStripe are automatically placed in state. 
       };
     }
 
-Where does state.config.currentDetailsAdmin come from? DetailsAdmin::getClientConfig() will add its details to window.ss.config.section.<sectionname>. But the current section namme can't live there. So it was (temporarily) added 'manually' to the `windows.ss.config` root as `currentDetailsAdmin`: 
-
-    protected function init()
-    {
-        ...
-        Requirements::customScript('window.ss.config.currentDetailsAdmin = "' . get_class($this) . '"');
-    }
-
 
 ####Defaults and proptypes
 
@@ -235,10 +238,11 @@ Where does state.config.currentDetailsAdmin come from? DetailsAdmin::getClientCo
     DetailsAdmin.defaultProps = {
       sectionConfig: {},
     };
+    
 
 ####Rendering DetailAdmin
 
-This is really very simpel, and it could just as easily have been a functional component. But as it is bound to be extended at some point, it is setup as a class for now. The SilverStripe FormBuilderLoader is reponsible for building the form, so we don't have to bother at all here.
+This is really very simple, and it could just as easily have been a functional component at this point. But as it is bound to be extended at some point, it is setup as a class for now. The SilverStripe FormBuilderLoader is reponsible for building the form, so we don't have to bother at all here.
 
     class DetailsAdmin extends Component {
 
@@ -258,5 +262,5 @@ This is really very simpel, and it could just as easily have been a functional c
        }
     }
 
-*Note that the Toolbar is used to display the DataObject title.*
+*Note that the Toolbar is used to display the DataObject title, where it would normally display the BreadCrumbs.*
 
