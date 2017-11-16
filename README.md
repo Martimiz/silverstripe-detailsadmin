@@ -13,6 +13,7 @@ So getCMSFields will generate an empty tab for has_many relations...
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Developers](#developers)
 - [Issues](#issues)
 - [Contribution](#contribution)
 - [Maintainers](#maintainers)
@@ -48,6 +49,12 @@ In your module create a default DataObject `customSettings`, than create an Deta
         private static $menu_priority = 9;
         private static $tree_class = CustomSettings::class;
     }
+
+<a name="developers"></a>
+## Developers
+Using Node.js and Yarn, perform a `yarn install` from the root of the module.
+
+Read [About this Module](https://github.com/Martimiz/silverstripe-detailsadmin/blob/master/docs/en/about-this-module.md) for more info on how this module works.
 
 <a name="issues"></a>
 ## Issues
