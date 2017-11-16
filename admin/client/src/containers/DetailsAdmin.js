@@ -1,31 +1,21 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import Toolbar from 'components/Toolbar/Toolbar';
 import FormBuilderLoader from 'containers/FormBuilderLoader/FormBuilderLoader';
 
-let schemaUrl = '';
-let treeClassTitle = '';
-
 class DetailsAdmin extends Component {
-  componentWillMount() {
-    const sectionName = window.ss.detailsadmin;
-    const currentSection = this.props.sectionConfig.find((section) => (
-      section.name === sectionName
-    ));
-    schemaUrl = currentSection.form.detailsEditForm.schemaUrl;
-    treeClassTitle = currentSection.treeClassTitle;
-  }
 
   render() {
     return (
       <div className="fill-height">
         <Toolbar>
-          <h2>{treeClassTitle}</h2>
+          <h2>{this.props.sectionConfig.treeClassTitle}</h2>
         </Toolbar>
         <div className="panel panel--padded panel--scrollable flexbox-area-grow">
           <FormBuilderLoader
-            schemaUrl={schemaUrl}
+            schemaUrl={this.props.sectionConfig.form.detailsEditForm.schemaUrl}
           />
         </div>
       </div>
@@ -33,9 +23,12 @@ class DetailsAdmin extends Component {
    }
 }
 
+DetailsAdmin.propTypes = {
+  sectionConfig: PropTypes.object,
+};
+
 DetailsAdmin.defaultProps = {
   sectionConfig: {},
-  params: {},
 };
 
 function mapDispatchToProps() {
@@ -43,7 +36,11 @@ function mapDispatchToProps() {
 }
 
 function mapStateToProps(state) {
-  const sectionConfig = state.config.sections;
+  const sectionName = state.config.currentDetailsAdmin;    
+  const sectionConfig = state.config.sections.find((section) => (
+      section.name === sectionName
+  ));
+
   return {
     sectionConfig,
   };

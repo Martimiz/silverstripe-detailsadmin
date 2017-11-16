@@ -55,6 +55,7 @@ abstract class DetailsAdmin extends LeftAndMain
         $this->treeClass = Config::inst()->get(get_class($this), 'tree_class');
 
         Requirements::customScript('window.ss.detailsadmin = "' . get_class($this) . '"');
+        Requirements::customScript('window.ss.config.currentDetailsAdmin = "' . get_class($this) . '"');
     }
 
     public function getClientConfig()
