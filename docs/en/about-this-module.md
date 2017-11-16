@@ -53,7 +53,9 @@ When @SilverStripe/webpack-config is used, the resulting webpack.config.js can b
 
 
 ## 2. How this module works
-The main README.MD file explains how to use the module. This section is about how it functions internally. There are two things to this module:
+**The main README.MD file explains how to use the module. This section is about how it functions internally. Basically the Form and FormActions are defined in DetailsAdmin.php - a LeftAndMain extension. This file then  writes some JavaScript to the page, that can be used by React to actually build and manage the form. SilverStripe provides the React components for that to work.**
+
+There are two things to this module:
 
 * Building an Admin React module (the primary goal)
 * Building an Admin Section module that can be extended (secondary niceness)
@@ -61,16 +63,9 @@ The main README.MD file explains how to use the module. This section is about ho
 There are two php classes to this module: `DetailsAdmin` and `DetailsAdminPermissions`. The first abstract class is the actual module, the second is a helper class,
 
 
-### DetailsAdminPermissions.php
-
-As `DetailsAdmin` is an abstract class, just like ModelAdmin, it can't implement PermissionProvider so someone else needs to do that for them. In the case of ModelAdmin that helper is LeftAndMain, in this case `DetailsAdminPermissions` does the work.
-
-***Note:** DetaisAdmin is an abstract class because it is just a base class: only its extensions should appear in the CMS Menu, not the base class itself!*
-
-
 ### DetailsAdmin.php
 
-This Admin Section base class has the following methods:
+This abstract Admin Section base class has the following methods:
 
 * **getDetailsEditForm**: builds the editform for the details of the first record of a DataObject. When there is no such record, it is created first.
 * **detailsEditForm**: is called when the form is posted. Basically refers to `getDetailsEditForm`
@@ -111,6 +106,13 @@ Make the form respond to validation errors with form schema if requested via rea
     
 
 *Note that, although we're preparing a regular SilverStripe form, it will need React to display it. If you want the forms to be generated without React as well, use editForm() and getEditForm() instead and SilverStripe will automatically build it. But it seems kind of superfluous to build the same for twice...*
+
+
+### DetailsAdminPermissions.php
+
+This is a simple helper class. Because `DetailsAdmin` is an abstract class, just like ModelAdmin, it can't implement PermissionProvider so someone else needs to do that for them. In the case of ModelAdmin that helper is LeftAndMain, in this case `DetailsAdminPermissions` does the work.
+
+***Note:** DetaisAdmin is an abstract class because it is just a base class: only its extensions should appear in the CMS Menu, not the base class itself!*
 
 ## 3. React
 
