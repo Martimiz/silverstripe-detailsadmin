@@ -2,9 +2,9 @@
 
 ##Introduction
 
-This is a simple module that works similar to ModelAdmin, but in this case it manages one single record at the time, equivalent to SiteConfig. It was build primarily for the purpose of finding out how React works in the SilverStripe 4 CMS. 
+This is a simple module that works similar to ModelAdmin, but instead of editing all records for a given DataObject, it displays a Detailsf form for one single record - equivalent to SiteConfig. It was build primarily for the purpose of finding out how React works in the SilverStripe 4 CMS. 
 
-At this point only the `Campaigns` and `Files` section had actually been converted to React. GridField hadn't been converted yet, so it can't be used for related records just yet, making the module less usable then it might have been - or will be.
+At the time of writing, only the `Campaigns` and `Files` sections have actually been converted to React. GridField hadn't been converted yet, so it can't be used for related records just yet, for now making the module less usable then it might have been - or will be.
 
 
 ##1. Setup
@@ -12,7 +12,7 @@ At this point only the `Campaigns` and `Files` section had actually been convert
 The module has been setup close to the SilverStripe way of doing things:
 
 
-###React folder structure
+###Folder structure for React
 
 For frontend development the React source lives in `client\src` and the resulting bundles are found in `client\dist`. For backend applications, the client folder structure is placed within an `admin` folder, as shown below.
 
@@ -21,6 +21,7 @@ For frontend development the React source lives in `client\src` and the resultin
 SilverStripe by default generates separate css files for its modules, instead of incorporating styles in javascript, and this module follows that example. So we get a `bundle.js` and `bundle.css`. To generate the separate css file, `extract-text-webpack-plugin` is used, that will extract the css from javascript after it has been generated. 
 
 **Note**: although at this point the module doesn't need extra styling, the style files are kept in as example.
+
 
 ###package.json
 
@@ -76,13 +77,46 @@ This Admin Section base class has the following methods:
 * **save**: saves the record
 * **getClientConfig**: provides javascript settings that will be injected in the page so they can be used by React
 
-*Note that, although we're preparing a regular SilverStripe form, but it will need React to display it. If you want the forms to be generated without React as well, use editForm() and getEditForm() instead. SilverStripe will automatically build it. But it seems kind of superfluous to build the same for twice...*
+**Check out a couple of neat things in `getDetailsEditForm` that will actually make the form shine:**
+
+Set the shape of the 'save' button to respond nicely to the state of the form:
+
+    FieldList::create(
+        FormAction::create('save', _t(__CLASS__ . 'SAVE', 'Save'))
+            ->setIcon('save')
+            ->setSchemaState([
+                'data' => [
+                    'pristineTitle' => _t(__CLASS__ . 'SAVED', 'Saved'),
+                    'pristineIcon' => 'tick',
+                    'dirtyTitle' => _t(__CLASS__ . 'SAVE', 'Save'),
+                    'dirtyIcon' => 'save',
+                    'pristineClass' => 'btn-outline-primary',
+                    'dirtyClass' => '',
+                ],
+            ])
+    ),
+    
+Confirm if the user wants to leave the page if changes have been made to the form.
+ 
+     $form->setNotifyUnsavedChanges(true);
+ 
+Make the form respond to validation errors with form schema if requested via react.
+
+    $form->setValidationResponseCallback(function (ValidationResult $errors) use ($form, $id, $record) {
+        $schemaId = Controller::join_links(
+            $this->Link('schema'), 'detailsEditForm', $id
+        );
+        return $this->getSchemaResponse($schemaId, $form, $errors);
+    });
+    
+
+*Note that, although we're preparing a regular SilverStripe form, it will need React to display it. If you want the forms to be generated without React as well, use editForm() and getEditForm() instead and SilverStripe will automatically build it. But it seems kind of superfluous to build the same for twice...*
 
 ##3. React
 
-### Initial state
+###Initial state
 
-In DetailsAdmin::getClientConfig() we define an array of data we will need for the React module to function and merge it with the existing array. The complete array for all sections will be injected into the page in de global `window.ss.config` variable, and automatically read into the Redux `initial state`. SilverStripe will handle that for us.
+In `DetailsAdmin::getClientConfig()` we define an array of data we will need for the React module to function and merge it with the existing array. The complete array for all sections will be injected into the page in de global `window.ss.config` variable, and automatically read into the Redux `initial state`. SilverStripe will handle that for us.
 
     public function getClientConfig()
     {
@@ -109,7 +143,8 @@ In DetailsAdmin::getClientConfig() we define an array of data we will need for t
 ***Note**: this solution to get the module to work can/will be improved upon, but for now...*
 
 
-### ConfigHelpers
+###ConfigHelpers
+
 **Config** is a SilverStripe React module used to read the (window.ss) data from file. We import and use it in the React 'root' file `src/bundles/bundle.js` to get to the config of all DetailsAdmin sections.
 
 	import ConfigHelpers from 'lib/Config';
@@ -120,22 +155,108 @@ In DetailsAdmin::getClientConfig() we define an array of data we will need for t
 * **ConfigHelpers.getCurrentSection()**: `Bummer, this doesn't do anything yet, and we actually need it!`
 
 
-### Registering all DetailsAdmin extensions.
+###Registering all DetailsAdmin extensions.
+*admin/client/src/bundles/bundle.js*
 
-Normally each Admin Section would have its own React 'root' file bundle.js, that will register the module and set it up with its own reducer for the redux store. In this case all DetailsAdmin extensions will share the same React bundle, so we must loop them to register all extensions, using `ConfigHelpers.get('sections')`.
+Normally each Admin Section would have its own React 'root' file `bundle.js`, that will register the module and set it up with its own reducer for the redux store. In this case all DetailsAdmin extensions will share the same React bundle, so we must loop them to register all extensions, using `ConfigHelpers.get('sections')`.
+
+    import { withRouter } from 'react-router';
+    import reactRouteRegister from 'lib/ReactRouteRegister';
+    import ConfigHelpers from 'lib/Config';
+
+    import DetailsAdmin from '../containers/DetailsAdmin';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const sectionConfig = ConfigHelpers.get('sections');
+
+        for (let i = 0; i < sectionConfig.length; i++) {
+            const section = sectionConfig[i];
+
+            if ('detailsAdmin' in section) {
+                reactRouteRegister.add({
+                    path: section.url,
+                    component: withRouter(DetailsAdmin),
+                });
+            }
+        }
+    });
 
 *At this point we need not change state at any point, so we can skip the reducer for now, and I'm not yet sure how to 'share' a single reducer between multiple sections, so that's for later.*
 
+### The React DetailsAdmin Module
+*admin/client/src/containers/DetailsAdmin.js*
+
+The code above imports the React `DetailsAdmin module`, that is responsible for displaying and handling the form. Tis isn't all that difficult - the challenge is to display the right form for any current section - as we do not know what specific DetailsAdmin section we're in (ConfigHelpers.getCurrentSection() not working). Anyway, first: the setup.
 
 
+####Imports
+	import React, { Component } from 'react';
+	import PropTypes from 'prop-types';
+	import { connect } from 'react-redux';
+	import { withRouter } from 'react-router';
+	import Toolbar from 'components/Toolbar/Toolbar';
+	import FormBuilderLoader from 'containers/FormBuilderLoader/FormBuilderLoader';
+
+`Toolbar` and `FormBuilderLoader` are SilcverStripe React components, that are accessible because of the externalsin @silverstripe/webpack-config. Check `node-modules/@silverstripe/webpack-config/js/externals.js` for available components and how to access them.
+
+####Mapping state to props
+The config settings from window.SilverStripe are automatically placed in state. `mapDispatchToProps` isn't used yet but for some reason still needs to be there. `mapStateToProps` just sets (parts of) the state to be a prop in the DetailsAdmin component.
+
+    function mapDispatchToProps() {
+      return {};
+    }
+
+    function mapStateToProps(state) {
+      const sectionName = state.config.currentDetailsAdmin;    
+      const sectionConfig = state.config.sections.find((section) => (
+          section.name === sectionName
+      ));
+
+      return {
+        sectionConfig,
+      };
+    }
+
+Where does state.config.currentDetailsAdmin come from? DetailsAdmin::getClientConfig() will add its details to window.ss.config.section.<sectionname>. But the current section namme can't live there. So it was (temporarily) added 'manually' to the `windows.ss.config` root as `currentDetailsAdmin`: 
+
+    protected function init()
+    {
+        ...
+        Requirements::customScript('window.ss.config.currentDetailsAdmin = "' . get_class($this) . '"');
+    }
 
 
+####Defaults and proptypes
 
+    DetailsAdmin.propTypes = {
+      sectionConfig: PropTypes.object,
+    };
 
+    DetailsAdmin.defaultProps = {
+      sectionConfig: {},
+    };
 
+####Rendering DetailAdmin
 
+This is really very simpel, and it could just as easily have been a functional component. But as it is bound to be extended at some point, it is setup as a class for now. The SilverStripe FormBuilderLoader is reponsible for building the form, so we don't have to bother at all here.
 
+    class DetailsAdmin extends Component {
 
+      render() {
+        return (
+          <div className="fill-height">
+            <Toolbar>
+              <h2>{this.props.sectionConfig.treeClassTitle}</h2>
+            </Toolbar>
+            <div className="panel panel--padded panel--scrollable flexbox-area-grow">
+              <FormBuilderLoader
+                schemaUrl={this.props.sectionConfig.form.detailsEditForm.schemaUrl}
+              />
+            </div>
+          </div>
+        );
+       }
+    }
 
-
+*Note that the Toolbar is used to display the DataObject title.*
 
