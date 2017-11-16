@@ -9,10 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sectionConfig = ConfigHelpers.get('sections').find((section) => (
       section.name === sectionName
   ));
-  
   reactRouteRegister.add({
     path: sectionConfig.url,
     component: withRouter(DetailsAdmin),
   });
-
 });
